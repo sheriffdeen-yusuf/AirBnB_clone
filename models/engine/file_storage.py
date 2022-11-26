@@ -6,6 +6,7 @@ deserialization of JSON data"""
 
 import models
 import json
+from models.user import User
 
 
 def models_encod_hook(obj):

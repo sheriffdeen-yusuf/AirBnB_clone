@@ -57,3 +57,11 @@ class FileStorage:
                 self.__objects = json.load(rf, object_hook=models_encod_hook)
         except:
             pass
+
+    def classes(self):
+        """Returns a dictionary of valid classes and their references"""
+        from models.base_model import BaseModel
+        class_dict = {
+            'BaseModel': BaseModel}
+        return class_dict
+

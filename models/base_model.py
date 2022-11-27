@@ -18,8 +18,23 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """Initialisation Method"""
-        if kwargs:
-            for key, value in kwargs.items():
+        if kwargs and kwargs != {}:
+            for key in kwargs:
+                if key == "created_at":
+                    self.__dict__["created_at"] = datetime.strptime(
+                        kwargs["created_at"], time)
+                elif key == "updated_at":
+                    self.__dict__["updated_at"] = datetime.strptime(
+                        kwargs["updated_at"], time)
+                else:
+                    self.__dict__[key] = kwargs[key]
+            else:
+                self.id = str(uuid.uuid4())
+                self.created_at = datetime.now()
+                self.updated_at = datetime.now()
+                models.storage.new(self)
+
+            """for key, value in kwargs.items():
                 if key != "__class__":
                     setattr(self, key, value)
             if kwargs.get("created_at", None) and type(self.created_at) is str:
@@ -36,7 +51,7 @@ class BaseModel:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            models.storage.new(self)
+            models.storage.new(self)"""
 
     def __str__(self):
         """String representation of a class"""

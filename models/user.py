@@ -3,6 +3,7 @@
 
 from models.base_model import BaseModel
 
+
 class User(BaseModel):
     ''' contains public attributes of email, passwors, fname and lname'''
     email = ""

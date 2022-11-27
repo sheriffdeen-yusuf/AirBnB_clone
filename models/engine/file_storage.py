@@ -6,7 +6,7 @@ deserialization of JSON data"""
 
 import models
 import json
-from models.user import Use
+from models.user import User
 from models.state import State
 from models.city import City
 from models.place import Place
@@ -61,7 +61,7 @@ class FileStorage:
         try:
             with open(filename, mode='r', encoding='utf-8') as rf:
                 self.__objects = json.load(rf, object_hook=models_encod_hook)
-        except:
+        except FileNotFoundError:
             pass
 
     def classes(self):
@@ -70,4 +70,3 @@ class FileStorage:
         class_dict = {
             'BaseModel': BaseModel}
         return class_dict
-

@@ -3,6 +3,7 @@
 """A module that contains attributes
 and methods for serialisation and
 deserialization of JSON data"""
+import datetime
 
 import models
 import json
@@ -64,4 +65,14 @@ class FileStorage:
         class_dict = {
             'BaseModel': BaseModel}
         return class_dict
+
+    def attributes(self):
+        """Returns the valid attributes and their types for classname"""
+        attributes = {
+            "BaseModel":
+                {"id": str,
+                 "created_at": datetime.datetime,
+                 "updated_at": datetime.datetime}
+        }
+        return attributes
 

@@ -6,6 +6,7 @@ deserialization of JSON data"""
 import datetime
 import models
 import json
+import os
 
 
 def models_encod_hook(obj):
@@ -52,11 +53,10 @@ class FileStorage:
     def reload(self):
         """Deserializes the JSON file to __objects if it exists"""
         filename = FileStorage.__file_path
-        try:
-            with open(filename, mode='r', encoding='utf-8') as rf:
-                FileStorage.__objects = json.load(rf, object_hook=models_encod_hook)
-        except FileNotFoundError:
-            pass
+        if not os.path.isfile(filename):
+            return
+        with open(filename, mode='r', encoding='utf-8') as rf:
+            FileStorage.__objects = json.load(rf, object_hook=models_encod_hook)
 
     def classes(self):
         """Returns a dictionary of valid classes and their references"""

@@ -25,11 +25,11 @@ class BaseModel:
             if kwargs.get("created_at", None) and type(self.created_at) is str:
                 self.created_at = datetime.strptime(kwargs["created_at"], time)
             else:
-                self.created_at = datetime.utcnow()
+                self.created_at = datetime.now()
             if kwargs.get("updated_at", None) and type(self.updated_at) is str:
                 self.updated_at = datetime.strptime(kwargs["updated_at"], time)
             else:
-                self.updated_at = datetime.utcnow()
+                self.updated_at = datetime.now()
             if kwargs.get("id", None) is None:
                 self.id = str(uuid.uuid4())
         else:
@@ -37,22 +37,6 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
             models.storage.new(self)
-
-        """if kwargs:
-            for keys, values in kwargs.items():
-                if keys == "__class__":
-                    if keys == "created_at" and type(keys) is str:
-                        setattr(self, keys, datetime.strptime(values, time))
-                    if keys == "updated_at" and type(keys) is str:
-                        setattr(self, keys, datetime.strptime(values, time))
-                else:
-                    setattr(self, keys, values)
-        else:
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.utcnow()
-            self.updated_at = datetime.utcnow()
-        if 'id' not in kwargs:
-            models.storage.new(self)"""
 
     def __str__(self):
         """String representation of a class"""

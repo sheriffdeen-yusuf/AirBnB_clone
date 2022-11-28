@@ -213,11 +213,14 @@ class HBNBCommand(cmd.Cmd):
                         final_attribute = self.remove_double_quotes(wrds[2])
                         if value_type == 'str':
                             final_value = self.string_input(wrds)
-                            setattr(storage.all()[key], final_attribute, final_value)
+                            setattr(storage.all()[key],
+                                    final_attribute, final_value)
                         elif value_type == 'int':
-                            setattr(storage.all()[key], final_attribute, int(wrds[3]))
+                            setattr(storage.all()[key],
+                                    final_attribute, int(wrds[3]))
                         elif value_type == 'float':
-                            setattr(storage.all()[key], final_attribute, float(wrds[3]))
+                            setattr(storage.all()[key],
+                                    final_attribute, float(wrds[3]))
                         storage.all()[key].save()
 
 

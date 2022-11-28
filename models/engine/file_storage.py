@@ -58,14 +58,8 @@ class FileStorage:
                 for key, value in from_json.items():
                     attr_cls_name = value.pop("__class__")
                     self.new(eval(attr_cls_name)(**value))
-        except:
+        except Exception:
             pass
-
-        """filename = FileStorage.__file_path
-        if not os.path.isfile(filename):
-            return
-        with open(filename, mode='r', encoding='utf-8') as f:
-            FileStorage.__objects = json.load(f, object_hook=models_encod_hook)"""
 
     def classes(self):
         """Returns a dictionary of valid classes and their references"""

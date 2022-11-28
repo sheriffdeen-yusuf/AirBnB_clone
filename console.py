@@ -15,7 +15,7 @@ def parse(line):
 
 class HBNBCommand(cmd.Cmd):
     """Represents a Console Program"""
-    prompt = '(hbnb) '
+    prompt = "(hbnb) "
 
     def default(self, line):
         """Default behaviour when argument format is not recognised by cmd"""
@@ -63,6 +63,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_EOF(self, line):
         """Exit at End of File"""
+        print()
         return True
 
     def emptyline(self):
@@ -71,7 +72,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_quit(self, line):
-        """Exit the program"""
+        """Quit command to exit the program"""
         return True
 
     def do_create(self, line):

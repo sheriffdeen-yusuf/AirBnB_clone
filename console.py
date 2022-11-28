@@ -160,7 +160,7 @@ class HBNBCommand(cmd.Cmd):
             else:
                 obj_id = "{}.{}".format(wrds[0], wrds[1])
                 if obj_id in storage.all():
-                    storage.all().pop(obj_id)
+                    del storage.all()[obj_id]
                     storage.save()
                 else:
                     print("** no instance found **")

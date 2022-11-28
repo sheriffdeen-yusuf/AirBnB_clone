@@ -6,6 +6,7 @@ import models
 from models import storage
 import cmd
 import re
+import os
 
 
 def parse(line):
@@ -14,15 +15,17 @@ def parse(line):
 
 
 class HBNBCommand(cmd.Cmd):
-    """Represents a Console Program"""
+    """Represents a Console Program
+    """
     prompt = "(hbnb) "
 
     def default(self, line):
-        """Default behaviour when argument format is not recognised by cmd"""
+        """Default behaviour when argument format is not recognised by cmd
+        """
         classname = ''
         method = ''
         uid = ''
-        args = ''
+        attr_and_value = ''
 
         incomplete_classname = True
         incomplete_method = True
@@ -45,9 +48,9 @@ class HBNBCommand(cmd.Cmd):
                     uid += i
             else:
                 if i not in [',', "'", ')']:
-                    args += i
+                    attr_and_value += i
 
-        group_args = classname + ' ' + uid + ' ' + args
+        group_args = classname + ' ' + uid + ' ' + attr_and_value
         if method == 'all':
             self.do_all(group_args)
         elif method == 'show':
@@ -61,34 +64,68 @@ class HBNBCommand(cmd.Cmd):
                      if type(v).__name__ == classname}
             print(len(count.keys()))
 
+    @staticmethod
+    def determine_type(line):
+        """Determine the type of the attribute_value to update
+        """
+        if line[0] in ['"', "'"]:
+            return 'str'
+        for character in line:
+            if (ord(character) != ord('.') and
+                    (ord(character) < ord('0') or ord(character) > ord('9'))):
+                return 'str'
+        if '.' in list(line):
+            return 'float'
+        return 'int'
+
+    @staticmethod
+    def string_input(raw_list):
+        """Create the final string input for setattr in do_update"""
+        raw = raw_list[3]
+        final = ''
+        raw_len = len(raw)
+        len_list = len(raw_list)
+        for i in range(raw_len):
+            if ((i != 0 or raw[i] not in ['"', "'"]) and
+                    (i != raw_len - 1 or raw[i] not in ['"', "'"])):
+                if raw[i] == "'":
+                    final += '\''
+                else:
+                    final += raw[i]
+        if raw[0] == '"' and raw[-1] != '"' and len_list > 4:
+            for raw_str in raw_list[4:]:
+                final += ' '
+                for i in raw_str:
+                    if i != '"':
+                        final += i
+        return final
+
+    @staticmethod
+    def remove_double_quotes(raw_str):
+        final = ''
+        for i in raw_str:
+            if i not in ['"', "'"]:
+                final += i
+        return final
+
     def do_EOF(self, line):
-        """Exit at End of File"""
-        print()
+        """Handles End Of File character.
+        """
+        print("")
         return True
 
     def emptyline(self):
-        """When empty line + ENTER nothing
-        executed"""
+        """Doesn't do anything on ENTER.
+        """
         pass
 
     def do_quit(self, line):
-        """Quit command to exit the program"""
+        """Exits the program.
+        """
         return True
 
     def do_create(self, line):
-        """
-        create:
-
-        Creates a new instance of BaseModel saves
-        it to JSON & prints the id
-
-        This method breaks a string of arguments down into smaller chunks,
-        or strings. It will try to return the value of the named attribute.
-        That will be stored, saved, and printed. If the named attribute
-        doesn't exist, KeyError is raised and handled before "** class
-        doesn't exist **" is printed to the screen.
-        If the class name is missing, "** class name missing **" will be
-        printed to the screen.
+        """Creates an instance.
         """
         line = parse(line)
         if len(line) == 0:
@@ -101,81 +138,42 @@ class HBNBCommand(cmd.Cmd):
             print(cls.id)
 
     def do_show(self, line):
-        """
-
-        show:
-
-        Prints the string representation of an instance based on the
-        class name and id Ex $ show BaseModel 1234-1234-1234
-
-        This method splits the arguments into smaller strings before the
-        arguments are used. If the length of the arguments is less than two,
-        IndexError is raised, handled, and "** instance id missing **" will
-        print to the screen since more than one argument is needed. However,
-        if an appropriate amount of arguments is available, the result of
-        class name and id will print to the screen. Otherwise, KeyError
-        will be raised, handled and "** no instance found **" will be printed
-        to the screen.
-        If the class name is missing, "** class name missing **" will be
-        printed to the screen. If the class name doesn't exist, "** class
-        doesn't exist **" will be printed to the screen.
+        """Prints the string representation of an instance.
         """
         wrds = parse(line)
-        if len(line) == 0:
+        if len(wrds) == 0:
             print("** class name missing **")
+        elif wrds[0] not in storage.classes():
+            print("** class doesn't exist **")
+        elif len(wrds) == 1:
+            print("** instance id missing **")
         else:
-            if wrds[0] not in storage.classes():
-                print("** class doesn't exist **")
-            elif len(wrds) < 2:
-                print("** instance id missing **")
+            obj_id = "{}.{}".format(wrds[0], wrds[1])
+            if obj_id in storage.all():
+                print(storage.all()[obj_id])
             else:
-                obj_id = "{}.{}".format(wrds[0], wrds[1])
-                if obj_id in storage.all():
-                    print(storage.all()[obj_id])
-                else:
-                    print("** no instance found **")
+                print("** no instance found **")
 
     def do_destroy(self, line):
-        """
-        destroy:
-
-        Deletes an instance based on the class name and id
-        save the change into the JSON file
-
-        This method requires two arguments, a class name and id. If the class
-        name is missing, "** class name missing **" will be printed to the
-        screen. If class name doesn't exist, "** class doesn't exist **"
-        will be printed to the screen. If class name does exist, then the
-        command will search for the id, or the second argument. If the id is
-        missing, IndexError is raised and "** instance id missing **" will
-        print to the screen. However, if found, the instance will be deleted.
+        """Deletes an instance based on the class name and id.
         """
         wrds = parse(line)
-        if len(line) == 0:
+        if len(wrds) == 0:
             print("** class name missing **")
+        elif wrds[0] not in storage.classes():
+            print("** class doesn't exist **")
+        elif len(wrds) == 1:
+            print("** instance id missing **")
         else:
-            if wrds[0] not in storage.classes():
-                print("** class doesn't exist **")
-            elif len(wrds) < 2:
-                print("** instance id missing **")
+            obj_id = "{}.{}".format(wrds[0], wrds[1])
+            if obj_id not in storage.all():
+                print("** no instance found **")
             else:
-                obj_id = "{}.{}".format(wrds[0], wrds[1])
-                if obj_id not in storage.all():
-                    print("** no instance found **")
-                else:
-                    del storage.all()[obj_id]
-                    storage.save()
+                del storage.all()[obj_id]
+                storage.save()
 
     def do_all(self, line):
-        """
-        all:
-
-        Prints all string representation of all instances based or not on the
-        class name
-
-        This method will print out the string representation of the value
-        of every instance of a class or not a class. If the class doesn't
-        exist, "** class doesn't exist **" will print to the screen.
+        """Prints all string representation of all instances.
         """
         if len(line) == 0:
             full_list = [str(obj) for key, obj in storage.all().items()]
@@ -190,52 +188,37 @@ class HBNBCommand(cmd.Cmd):
                 print(instance_list)
 
     def do_update(self, line):
-        """Updates an instance based on the class name and id
-        by adding or updating attribute(save the change into
-        the JSON file"""
-        if len(line) == 0:
-            print("** class name missing **")
-            return
+        """Updates an instance by adding or updating attribute.
+        """
+        wrds = parse(line)
 
-        pattern = re.compile(r'(\S+)')
-        wrds = re.findall(pattern, line)
-        classname = wrds[0]
-        uid = wrds[1]
-        attribute = wrds[2]
-        value = wrds[3]
         if len(wrds) == 0:
             print("** class name missing **")
-        elif classname not in storage.classes():
+        elif wrds[0] not in storage.classes():
             print("** class doesn't exist **")
-        elif uid is None:
+        elif len(wrds) == 1:
             print("** instance id missing **")
         else:
-            key = "{}.{}".format(classname, uid)
+            key = "{}.{}".format(wrds[0], wrds[1])
             if key not in storage.all():
                 print("** no instance found **")
-            elif not attribute:
-                print("** attribute name missing **")
-            elif not value:
-                print("** value missing **")
             else:
-                datatype = None
-                if not re.search('^".*"$', value):
-                    if '.' in value:
-                        datatype = float
-                    else:
-                        datatype = int
+                if len(wrds) == 2:
+                    print("** attribute name missing **")
+                elif len(wrds) == 3:
+                    print("** value missing **")
                 else:
-                    value = value.replace('"', '')
-                attributes = storage.attributes()[classname]
-                if attribute in attributes:
-                    value = attributes[attribute](value)
-                elif datatype:
-                    try:
-                        value = datatype(value)
-                    except ValueError:
-                        pass
-                setattr(storage.all()[key], attribute, value)
-                storage.all()[key].save()
+                    if key in storage.all():
+                        value_type = self.determine_type(wrds[3])
+                        final_attribute = self.remove_double_quotes(wrds[2])
+                        if value_type == 'str':
+                            final_value = self.string_input(wrds)
+                            setattr(storage.all()[key], final_attribute, final_value)
+                        elif value_type == 'int':
+                            setattr(storage.all()[key], final_attribute, int(wrds[3]))
+                        elif value_type == 'float':
+                            setattr(storage.all()[key], final_attribute, float(wrds[3]))
+                        storage.all()[key].save()
 
 
 if __name__ == '__main__':

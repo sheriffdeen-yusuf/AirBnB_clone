@@ -51,11 +51,21 @@ class FileStorage:
 
     def reload(self):
         """Deserializes the JSON file to __objects if it exists"""
-        filename = FileStorage.__file_path
+        from_json = {}
+        try:
+            with open(self.__file_path, mode='r', encoding="UTF-8") as myfile:
+                from_json = json.load(myfile)
+                for key, value in from_json.items():
+                    attr_cls_name = value.pop("__class__")
+                    self.new(eval(attr_cls_name)(**value))
+        except:
+            pass
+
+        """filename = FileStorage.__file_path
         if not os.path.isfile(filename):
             return
         with open(filename, mode='r', encoding='utf-8') as f:
-            FileStorage.__objects = json.load(f, object_hook=models_encod_hook)
+            FileStorage.__objects = json.load(f, object_hook=models_encod_hook)"""
 
     def classes(self):
         """Returns a dictionary of valid classes and their references"""
@@ -109,7 +119,7 @@ class FileStorage:
                  "longitude": float,
                  "amenity_ids": list},
             "Review":
-                {"Place_id": str,
+                {"place_id": str,
                  "user_id": str,
                  "text": str}
         }

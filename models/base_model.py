@@ -18,7 +18,31 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """Initialisation Method"""
-        if kwargs:
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.today()
+        self.updated_at = datetime.today()
+        if len(kwargs) == 0:
+            models.storage.new(self)
+        else:
+            for k, v in kwargs.items():
+                if k != '__class__':
+                    if k in ['created_at', 'updated_at']:
+                        if type(v) == str:
+                            v = datetime.strptime(v, time)
+                        else:
+                            if k == 'created_at':
+                                v = self.created_at
+                            elif k == 'updated_at':
+                                v = self.updated_at
+                    if k == 'id':
+                        v = str(v)
+                    setattr(self, k, v)
+                if k == 'id':
+                    existing = models.storage.all()
+                    id_str = self.__class__.__name__ + '.' + str(v)
+                    if id_str not in existing.keys():
+                        models.storage.new(self)
+        """if kwargs:
             for key, value in kwargs.items():
                 if key != "__class__":
                     setattr(self, key, value)
@@ -36,7 +60,7 @@ class BaseModel:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            models.storage.new(self)
+            models.storage.new(self)"""
 
     def __str__(self):
         """String representation of a class"""
@@ -55,10 +79,15 @@ class BaseModel:
         """ returns a dictionary containing
         all keys/values of __dict__ of the instance
         """
+        """new_dict = {k: v for k, v in self.__dict__.items()}
+        new_dict['__class__'] = self.__class__.__name__
+        new_dict['created_at'] = self.created_at.isoformat()
+        new_dict['updated_at'] = self.updated_at.isoformat()
+        return new_dict"""
         dict_copy = self.__dict__.copy()
         dict_copy["__class__"] = self.__class__.__name__
         if "created_at" in dict_copy:
-            dict_copy['created_at'] = dict_copy['created_at'].strftime(time)
+            dict_copy['created_at'] = dict_copy['created_at'].isoformat()
         if "updated_at" in dict_copy:
-            dict_copy['updated_at'] = dict_copy['updated_at'].strftime(time)
+            dict_copy['updated_at'] = dict_copy['updated_at'].isoformat()
         return dict_copy

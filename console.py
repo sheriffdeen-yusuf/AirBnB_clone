@@ -8,9 +8,58 @@ import cmd
 import re
 
 
+def parse(line):
+    """Convert a series of zero or more numbers to an argument tuple"""
+    return tuple(map(str, line.split()))
+
+
 class HBNBCommand(cmd.Cmd):
     """Represents a Console Program"""
     prompt = '(hbnb) '
+
+    def default(self, line):
+        """Default behaviour when argument format is not recognised by cmd"""
+        classname = ''
+        method = ''
+        uid = ''
+        args = ''
+
+        incomplete_classname = True
+        incomplete_method = True
+        incomplete_uid = True
+        for i in line:
+            if incomplete_classname is True:
+                if i == '.':
+                    incomplete_classname = False
+                else:
+                    classname += i
+            elif incomplete_method is True:
+                if i == '(':
+                    incomplete_method = False
+                else:
+                    method += i
+            elif incomplete_uid is True:
+                if i in [')', ',']:
+                    incomplete_uid = False
+                elif i not in ['"', "'"]:
+                    uid += i
+            else:
+                if i not in [',', "'", ')']:
+                    args += i
+
+        group_args = classname + ' ' + uid + ' ' + args
+        if method == 'all':
+            self.do_all(group_args)
+        elif method == 'show':
+            self.do_show(group_args)
+        elif method == 'destroy':
+            self.do_show(group_args)
+        elif method == 'update':
+            self.do_update(group_args)
+        elif method == 'count':
+            count = {k: v for k, v in storage.all().items()
+                     if type(v).__name__ == classname}
+            print(len(count.keys()))
 
     def do_EOF(self, line):
         """Exit at End of File"""
@@ -40,12 +89,13 @@ class HBNBCommand(cmd.Cmd):
         If the class name is missing, "** class name missing **" will be
         printed to the screen.
         """
+        line = parse(line)
         if len(line) == 0:
             print("** class name missing **")
-        elif line not in storage.classes():
+        elif line[0] not in storage.classes():
             print("** class doesn't exist **")
         else:
-            cls = storage.classes()[line]()
+            cls = storage.classes()[line[0]]()
             cls.save()
             print(cls.id)
 
@@ -69,10 +119,10 @@ class HBNBCommand(cmd.Cmd):
         printed to the screen. If the class name doesn't exist, "** class
         doesn't exist **" will be printed to the screen.
         """
+        wrds = parse(line)
         if len(line) == 0:
             print("** class name missing **")
         else:
-            wrds = line.split(' ')
             if wrds[0] not in storage.classes():
                 print("** class doesn't exist **")
             elif len(wrds) < 2:
@@ -99,10 +149,10 @@ class HBNBCommand(cmd.Cmd):
         missing, IndexError is raised and "** instance id missing **" will
         print to the screen. However, if found, the instance will be deleted.
         """
+        wrds = parse(line)
         if len(line) == 0:
             print("** class name missing **")
         else:
-            wrds = line.split(' ')
             if wrds[0] not in storage.classes():
                 print("** class doesn't exist **")
             elif len(wrds) < 2:

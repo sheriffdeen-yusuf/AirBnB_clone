@@ -1,0 +1,58 @@
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+.container section.filters {
+    /* color: white; */
+    height: 70px;
+    width: 100%;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+}
+
+section.filters button {
+    font-size: 18px;
+    background-color: #FF5A5F;
+    color: #FFFFFF;
+    height: 48px;
+    width: 20%;
+    border-radius: 4px;
+    border-style: none;
+    float: right;
+    position: relative;
+    right: 30px;
+
+
+
+}
+
+button:hover {
+    opacity: 90%;    
+}
+
+section.filters div {
+    /* width:inherit; */
+    height:inherit 100%;
+    width: 50%;
+    text-align: center;
+
+}
+
+div.filters {
+    display: flex;
+}
+
+section.filters div.locations {
+    border-right:1px solid #DDDDDD;
+
+}
+div h3 {
+    font-weight: 600;
+}
+
+div h4 {
+    font-weight: 400;
+    font-size: 14px;
+}

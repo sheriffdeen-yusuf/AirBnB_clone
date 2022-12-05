@@ -5,8 +5,6 @@ of the command interpreter
 import models
 from models import storage
 import cmd
-import re
-import os
 
 
 def parse(line):
@@ -56,7 +54,7 @@ class HBNBCommand(cmd.Cmd):
         elif method == 'show':
             self.do_show(group_args)
         elif method == 'destroy':
-            self.do_show(group_args)
+            self.do_destroy(group_args)
         elif method == 'update':
             self.do_update(group_args)
         elif method == 'count':
